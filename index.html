@@ -5,28 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDF Viewer</title>
 <style>
-    body, html {
+    body {
         margin: 0;
         padding: 0;
-        height: 100%;
         font-family: Arial, sans-serif;
     }
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    .download-link {
-        font-size: 1.5rem;
-        text-decoration: none;
-        color: blue;
+    .pdf-page {
+        display: block;
+        margin: 0 auto;
     }
 </style>
 </head>
 <body>
-<div class="container">
-    <p>It appears you don't have a PDF plugin for this browser. No biggie... you can <a class="download-link" href="Galaxy_IE_Catalogue.pdf" target="_blank">click here to download the PDF file</a>.</p>
-</div>
+<div id="pdf-container"></div>
+
+<script>
+// Function to load PDF and display as images
+function loadPDF(pdfUrl) {
+    // Fetch PDF file
+    fetch(pdfUrl)
+    .then(response => response.blob())
+    .then(blob => {
+        // Convert blob to object URL
+        const objectUrl = URL.createObjectURL(blob);
+
+        // Create PDF.js viewer
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+
+        const container = document.getElementById('pdf-container');
+
+        // Initialize PDF viewer
+        pdfjsLib.getDocument(objectUrl).promise.then(pdf => {
+            // Loop through each page of the PDF
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                // Render each page as an image
+                pdf.getPage(pageNum).then(page => {
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+
+                    page.render(renderContext).promise.then(() => {
+                        container.appendChild(canvas);
+                    });
+                });
+            }
+        });
+    })
+    .catch(error => console.error('Error loading PDF:', error));
+}
+
+// Call loadPDF function with the URL of the PDF file
+loadPDF('Galaxy_IE_Catalogue.pdf');
+</script>
 </body>
 </html>
+
