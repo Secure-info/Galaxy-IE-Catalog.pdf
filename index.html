@@ -10,33 +10,98 @@
         padding: 0;
         font-family: Arial, sans-serif;
     }
+    #pdf-container {
+        text-align: center;
+    }
     .pdf-page {
         display: block;
-        margin: 0 auto;
+        margin: 20px auto;
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
     }
 </style>
 </head>
 <body>
 <div id="pdf-container"></div>
 
+<!-- Load PDF.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
 <script>
 // Function to load PDF and display as images
 function loadPDF(pdfUrl) {
+    const container = document.getElementById('pdf-container');
+
     // Fetch PDF file
     fetch(pdfUrl)
-    .then(response => response.blob())
-    .then(blob => {
-        // Convert blob to object URL
-        const objectUrl = URL.createObjectURL(blob);
+    .then(response => response.arrayBuffer())
+    .then(data => {
+        // Load PDF
+        pdfjsLib.getDocument({ data: data }).promise.then(pdf => {
+            // Loop through each page of the PDF
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                // Render each page as an image
+                pdf.getPage(pageNum).then(page => {
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
 
-        // Create PDF.js viewer
-        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
 
-        const container = document.getElementById('pdf-container');
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
 
-        // Initialize PDF viewer
-        pdfjsLib.getDocument(objectUrl).promise.then(pdf => {
+                    page.render(renderContext).promise.then(() => {
+                        container.appendChild(canvas);
+                    });
+                });
+            }
+        });
+    })
+    .catch(error => console.error('Error loading PDF:', error));
+}
+
+// Call loadPDF function with the URL of the PDF file
+loadPDF('<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Viewer</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+    #pdf-container {
+        text-align: center;
+    }
+    .pdf-page {
+        display: block;
+        margin: 20px auto;
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    }
+</style>
+</head>
+<body>
+<div id="pdf-container"></div>
+
+<!-- Load PDF.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+<script>
+// Function to load PDF and display as images
+function loadPDF(pdfUrl) {
+    const container = document.getElementById('pdf-container');
+
+    // Fetch PDF file
+    fetch(pdfUrl)
+    .then(response => response.arrayBuffer())
+    .then(data => {
+        // Load PDF
+        pdfjsLib.getDocument({ data: data }).promise.then(pdf => {
             // Loop through each page of the PDF
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 // Render each page as an image
@@ -69,4 +134,7 @@ loadPDF('Galaxy_IE_Catalogue.pdf');
 </script>
 </body>
 </html>
-
+');
+</script>
+</body>
+</html>
