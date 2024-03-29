@@ -3,138 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Viewer</title>
+<title>Image Viewer</title>
 <style>
     body {
         margin: 0;
         padding: 0;
         font-family: Arial, sans-serif;
     }
-    #pdf-container {
+    #image-container {
         text-align: center;
     }
-    .pdf-page {
-        display: block;
+    .image {
+        max-width: 100%;
+        height: auto;
         margin: 20px auto;
         box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
     }
 </style>
 </head>
 <body>
-<div id="pdf-container"></div>
+<div id="image-container"></div>
 
-<!-- Load PDF.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
 <script>
-// Function to load PDF and display as images
-function loadPDF(pdfUrl) {
-    const container = document.getElementById('pdf-container');
-
-    // Fetch PDF file
-    fetch(pdfUrl)
-    .then(response => response.arrayBuffer())
-    .then(data => {
-        // Load PDF
-        pdfjsLib.getDocument({ data: data }).promise.then(pdf => {
-            // Loop through each page of the PDF
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                // Render each page as an image
-                pdf.getPage(pageNum).then(page => {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-
-                    page.render(renderContext).promise.then(() => {
-                        container.appendChild(canvas);
-                    });
-                });
-            }
-        });
-    })
-    .catch(error => console.error('Error loading PDF:', error));
+// Function to load and display JPEG image
+function loadImage(imageUrl) {
+    const container = document.getElementById('image-container');
+    
+    // Create image element
+    const image = document.createElement('img');
+    image.src = imageUrl;
+    image.classList.add('image');
+    
+    // Append image to container
+    container.appendChild(image);
 }
 
-// Call loadPDF function with the URL of the PDF file
-loadPDF('<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Viewer</title>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-    }
-    #pdf-container {
-        text-align: center;
-    }
-    .pdf-page {
-        display: block;
-        margin: 20px auto;
-        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
-    }
-</style>
-</head>
-<body>
-<div id="pdf-container"></div>
-
-<!-- Load PDF.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
-<script>
-// Function to load PDF and display as images
-function loadPDF(pdfUrl) {
-    const container = document.getElementById('pdf-container');
-
-    // Fetch PDF file
-    fetch(pdfUrl)
-    .then(response => response.arrayBuffer())
-    .then(data => {
-        // Load PDF
-        pdfjsLib.getDocument({ data: data }).promise.then(pdf => {
-            // Loop through each page of the PDF
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                // Render each page as an image
-                pdf.getPage(pageNum).then(page => {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-
-                    page.render(renderContext).promise.then(() => {
-                        container.appendChild(canvas);
-                    });
-                });
-            }
-        });
-    })
-    .catch(error => console.error('Error loading PDF:', error));
-}
-
-// Call loadPDF function with the URL of the PDF file
-loadPDF('Galaxy_IE_Catalogue.pdf');
+// Call loadImage function with the URL of the JPEG image file
+loadImage('Galaxy_IE.jpg');
 </script>
 </body>
 </html>
-');
-</script>
-</body>
-</html>
+
